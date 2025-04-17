@@ -13,7 +13,6 @@
     "documentationUrl": "https://github.com/ThizThizzyDizzy/AutoBuilder",
     "type": "tool",
     "vpmDependencies": {
-      "com.vrchat.base": "^3.4.x",
-      "com.vrchat.worlds": "^3.4.x"
+      "com.vrchat.base": "^3.4.x"
     }
 }

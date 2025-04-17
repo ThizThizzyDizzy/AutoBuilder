@@ -1,0 +1,15 @@
+{
+  "name": "AutoBuilder.Editor",
+  "references": [
+    "AutoBuilder.Runtime",
+    "UdonSharp.Editor",
+    "VRC.SDKBase.Editor",
+    "VRC.SDK3.Editor",
+    "UnityEditor"
+  ],
+  "includePlatforms": ["Editor"],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "autoReferenced": true
+}
