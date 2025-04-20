@@ -279,16 +279,25 @@ namespace AutoBuilder
         {
             int currentStep = EditorPrefs.GetInt("AutoBuilder_Step", -1);
             if (currentStep < 0) return; // Not currently running.
-            
-            if (Environment.GetEnvironmentVariable("UNITY_ASSET_IMPORT_WORKER") == "1")
+
+            // Check for signs of being within a Unity Asset Import Worker thread.
+
+
+            string[] args = Environment.GetCommandLineArgs();
+            bool isAssetImportWorkerThread = Environment.GetEnvironmentVariable("UNITY_ASSET_IMPORT_WORKER") == "1";
+            foreach (var arg in args)
+                if (arg.StartsWith("AssetImportWorker"))
+                    isAssetImportWorkerThread = true;
+
+            if (isAssetImportWorkerThread)
             {
                 Log("This process appears to be a unity asset import worker. AutoBuilder will not resume.");
                 return;
-            };
+            }
 
             // VRC.Core.Logger.EnableCategory("All"); // Turn on logging for VRC
             VRC.Core.Logger.AddDebugLevel(9); // Turn on logging for VRC (for previous version of VRC SDK)
-            
+
             try
             {
                 var steps = AutoBuilderStepAssembler.GetSteps();
