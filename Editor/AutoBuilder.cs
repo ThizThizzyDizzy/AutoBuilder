@@ -135,7 +135,6 @@ namespace AutoBuilder
             }
         }
 
-        [MenuItem("Tools/Auto Builder/TEST")]
         // This method is called by the Auto Builder Monitor.
         public static async void Start()
         {
