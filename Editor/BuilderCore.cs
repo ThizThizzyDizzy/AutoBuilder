@@ -8,7 +8,7 @@ public class BuilderCore : MonoBehaviour
     public static async Task<APIUser> TryLogin()
     {
         Log("Logging in...");
-        
+
         API.SetOnlineMode(true);
         await InitRemoteConfig();
 
@@ -20,13 +20,13 @@ public class BuilderCore : MonoBehaviour
         {
             if (APIUser.IsLoggedIn) return APIUser.CurrentUser;
             int status = 0;
-            APIUser.InitialFetchCurrentUser(user => status = 1, user => lastError = user.Error);
+            APIUser.InitialFetchCurrentUser(user => status = 1, user => lastError = user?.Error);
             await Task.Delay(250);
 
             if (status == 1) return APIUser.CurrentUser;
         }
 
-        throw new Exception($"Unable to log in after {attempts} attempts! ({lastError})");
+        throw new Exception($"Unable to log in after {attempts} attempts! ({lastError ?? "UNKNOWN"})");
     }
 
     public static async Task InitRemoteConfig()

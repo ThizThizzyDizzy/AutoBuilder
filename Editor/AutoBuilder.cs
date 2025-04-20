@@ -138,6 +138,8 @@ namespace AutoBuilder
         // This method is called by the Auto Builder Monitor.
         public static async void Start()
         {
+            // VRC.Core.Logger.EnableCategory("All"); // Turn on logging for VRC
+            VRC.Core.Logger.AddDebugLevel(9); // Turn on logging for VRC (for previous version of VRC SDK)
             ClearEditorPrefs();
             if (BuildInfo == null) AbortBuild("Could not load build info!");
 
@@ -277,7 +279,16 @@ namespace AutoBuilder
         {
             int currentStep = EditorPrefs.GetInt("AutoBuilder_Step", -1);
             if (currentStep < 0) return; // Not currently running.
+            
+            if (Environment.GetEnvironmentVariable("UNITY_ASSET_IMPORT_WORKER") == "1")
+            {
+                Log("This process appears to be a unity asset import worker. AutoBuilder will not resume.");
+                return;
+            };
 
+            // VRC.Core.Logger.EnableCategory("All"); // Turn on logging for VRC
+            VRC.Core.Logger.AddDebugLevel(9); // Turn on logging for VRC (for previous version of VRC SDK)
+            
             try
             {
                 var steps = AutoBuilderStepAssembler.GetSteps();
