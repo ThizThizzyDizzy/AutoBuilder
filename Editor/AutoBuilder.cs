@@ -2,8 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
+using Unity.Plastic.Newtonsoft.Json;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -246,6 +249,8 @@ namespace AutoBuilder
             FieldInfo _platform = typeof(VRC.Tools).GetField("_platform", BindingFlags.NonPublic | BindingFlags.Static);
             if (_platform == null) throw new Exception("Could not set VRC upload platform!");
 
+            VRCWorld? world = null;
+
             foreach (string path in toUpload)
             {
                 var file = new FileInfo(path);
@@ -258,10 +263,68 @@ namespace AutoBuilder
                 Log($"Uploading world: {file.Name} for platform {VRC.Tools.Platform}");
 
                 var signature = File.ReadAllText($"{file.DirectoryName}\\{file.Name.Substring(0, file.Name.Length - 5)}.sig");
-                await WorldBuilder.Upload(path, BuildInfo.blueprint_id, signature);
+                world = await WorldBuilder.Upload(path, BuildInfo.blueprint_id, signature);
             }
 
             _platform.SetValue(null, null); // Reset to current platform
+
+            if (BuildInfo.discord_webhook != null && world != null)
+            {
+                DiscordMessage message = new DiscordMessage()
+                {
+                    username = "AutoBuilder",
+                    embeds = new()
+                    {
+                        new DiscordEmbed
+                        {
+                            title = world.Value.Name,
+                            description = "World updated!",
+                            url = $"https://vrchat.com/home/launch?worldId={BuildInfo.blueprint_id}",
+                            Color = new Color(0, .8f, 0),
+                            thumbnail = new DiscordUrlObject
+                            {
+                                url = world.Value.ThumbnailImageUrl
+                            },
+                            fields = new()
+                        }
+                    }
+                };
+                foreach (string path in toUpload)
+                {
+                    var file = new FileInfo(path);
+                    var bytes = file.Length;
+                    double fractionalSize = bytes;
+                    var unit = 0;
+                    string[] units = { "B", "KiB", "MiB", "GiB" };
+                    while (fractionalSize > 1024 && unit < units.Length - 1)
+                    {
+                        unit++;
+                        fractionalSize /= 1024;
+                    }
+
+                    message.embeds[0].fields.Add(new DiscordEmbedField()
+                    {
+                        name = file.Name.Split("-", 3)[1].ToLowerInvariant().Replace("64", ""),
+                        value = $"{fractionalSize:0.###} {units[unit]}",
+                        inline = true
+                    });
+                }
+
+                try
+                {
+                    var request = WebRequest.CreateHttp(BuildInfo.discord_webhook);
+                    var bytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(message));
+                    request.Method = "POST";
+                    request.ContentType = "application/json";
+                    request.ContentLength = bytes.Length;
+                    using var stream = request.GetRequestStream();
+                    stream.Write(bytes, 0, bytes.Length);
+                }
+                catch (Exception ex)
+                {
+                    LogError($"Failed to send discord webhook: {ex}");
+                }
+            }
         }
 
         [AutoBuilderStep("Finish", AutoBuilderStep.ORDER_FINISH, ReloadHandlingMode.Retry, retryLimit: 1)]
@@ -387,6 +450,7 @@ namespace AutoBuilder
         public string[] upload;
         public BuildMetadata metadata;
         public BuildTarget? default_platform;
+        public string discord_webhook;
     }
 
     [Serializable]
@@ -425,5 +489,40 @@ namespace AutoBuilder
         {
             return $"{repo}-{head.Substring(0, Math.Min(head.Length, 8))}";
         }
+    }
+
+    [Serializable]
+    public class DiscordMessage
+    {
+        public string username;
+        public List<DiscordEmbed> embeds;
+    }
+
+    [Serializable]
+    public class DiscordEmbed
+    {
+        public string title;
+        public string description;
+        public string url;
+        public int color;
+        public List<DiscordEmbedField> fields;
+
+        public Color Color { set => color = (int)value.r * 255 << 16 | (int)value.g * 255 << 8 | (int)value.b * 255; }
+
+        public DiscordUrlObject thumbnail;
+    }
+
+    [Serializable]
+    public class DiscordUrlObject
+    {
+        public string url;
+    }
+
+    [Serializable]
+    public class DiscordEmbedField
+    {
+        public string name;
+        public string value;
+        public bool inline;
     }
 }

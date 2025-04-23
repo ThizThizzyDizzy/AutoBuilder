@@ -47,7 +47,7 @@ namespace AutoBuilder
             };
         }
 
-        public static async Task Upload(string path, string blueprintId, string signature)
+        public static async Task<VRCWorld> Upload(string path, string blueprintId, string signature)
         {
             var user = await TryLogin();
 
@@ -80,6 +80,7 @@ namespace AutoBuilder
                 (status, percentage) => Log($"Uploading... {status}: {percentage * 100}%"));
 
             Log("Upload complete!");
+            return world;
         }
 
         public static IVRCSdkWorldBuilderApi GetSdkWorldBuilder()
