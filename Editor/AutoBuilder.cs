@@ -457,7 +457,7 @@ namespace AutoBuilder
     public class BuildMetadata
     {
         public string version;
-        public int timestamp;
+        public long timestamp;
         public int build_id;
         public GitMetadata[] git = new GitMetadata[0];
         public string[] extra_build_info = new string[0];
