@@ -47,25 +47,25 @@ namespace AutoBuilder
             };
         }
 
-        public static async Task<VRCWorld> Upload(string path, string blueprintId, string signature)
+        public static async Task<VRCWorld> Upload(string path, string blueprintId, string signature, bool? mobile = null)
         {
             var user = await TryLogin();
 
             if (!File.Exists(path)) throw new Exception($"Could not find built world file: {path}");
 
             Log("Preparing for World Upload");
-
-            bool mobile = ValidationEditorHelpers.IsMobilePlatform();
-            if (ValidationEditorHelpers.CheckIfAssetBundleFileTooLarge(ContentType.World, path, out int fileSize, mobile))
+            
+            if (mobile == null) mobile = ValidationEditorHelpers.IsMobilePlatform();
+            if (ValidationEditorHelpers.CheckIfAssetBundleFileTooLarge(ContentType.World, path, out int fileSize, mobile.Value))
             {
-                var limit = ValidationHelpers.GetAssetBundleSizeLimit(ContentType.World, mobile);
+                var limit = ValidationHelpers.GetAssetBundleSizeLimit(ContentType.World, mobile.Value);
                 throw new Exception($"World download size is too large! {ValidationHelpers.FormatFileSize(fileSize)} > {ValidationHelpers.FormatFileSize(limit)}");
             }
 
             if (ValidationEditorHelpers.CheckIfAssetBundleFileTooLarge(ContentType.World, path, out int uncompressedSize,
-                    mobile))
+                    mobile.Value))
             {
-                var limit = ValidationHelpers.GetAssetBundleSizeLimit(ContentType.World, mobile);
+                var limit = ValidationHelpers.GetAssetBundleSizeLimit(ContentType.World, mobile.Value);
                 throw new Exception($"World uncompressed size is too large! {ValidationHelpers.FormatFileSize(uncompressedSize)} > {ValidationHelpers.FormatFileSize(limit)}");
             }
 

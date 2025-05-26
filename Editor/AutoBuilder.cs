@@ -263,7 +263,7 @@ namespace AutoBuilder
                 Log($"Uploading world: {file.Name} for platform {VRC.Tools.Platform}");
 
                 var signature = File.ReadAllText($"{file.DirectoryName}\\{file.Name.Substring(0, file.Name.Length - 5)}.sig");
-                world = await WorldBuilder.Upload(path, BuildInfo.blueprint_id, signature);
+                world = await WorldBuilder.Upload(path, BuildInfo.blueprint_id, signature, !platform.Contains("windows"));
             }
 
             _platform.SetValue(null, null); // Reset to current platform
