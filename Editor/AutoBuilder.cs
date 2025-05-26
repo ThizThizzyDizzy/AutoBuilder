@@ -134,7 +134,7 @@ namespace AutoBuilder
             get
             {
                 if (_buildInfo != null) return _buildInfo;
-                return _buildInfo = (BuildInfo)JsonUtility.FromJson(File.ReadAllText("build.json"), typeof(BuildInfo));
+                return _buildInfo = (BuildInfo)JsonUtility.FromJson(File.ReadAllText(Path.Combine(Directory.GetParent(Application.dataPath).FullName, "build.json")), typeof(BuildInfo));
             }
         }
 
