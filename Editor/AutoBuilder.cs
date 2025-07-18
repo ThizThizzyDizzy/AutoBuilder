@@ -330,10 +330,10 @@ namespace AutoBuilder
         [AutoBuilderStep("Finish", AutoBuilderStep.ORDER_FINISH, ReloadHandlingMode.Retry, retryLimit: 1)]
         private static async Task Finish()
         {
-            if (BuildInfo.default_platform != null)
+            if ((int)BuildInfo.default_platform != 0)
             {
                 Log($"Returning to default platform: {BuildInfo.default_platform}");
-                await SetBuildTarget(BuildInfo.default_platform.Value);
+                await SetBuildTarget(BuildInfo.default_platform);
             }
         }
 
@@ -449,7 +449,7 @@ namespace AutoBuilder
         public bool upload_after_build;
         public string[] upload;
         public BuildMetadata metadata;
-        public BuildTarget? default_platform;
+        public BuildTarget default_platform;
         public string discord_webhook;
     }
 
