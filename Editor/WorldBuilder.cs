@@ -109,6 +109,7 @@ namespace AutoBuilder
         {
             foreach (var metadataDisplay in FindObjectsOfType<AutoBuilderBuildMetadata>())
             {
+                Log($"Applying build metadata {metadata} to Metadata Display Object {metadataDisplay.gameObject.name}");
                 metadataDisplay.SetBuildMetadata($"{metadata}");
             }
         }

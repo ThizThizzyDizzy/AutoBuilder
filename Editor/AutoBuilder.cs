@@ -159,6 +159,7 @@ namespace AutoBuilder
             EditorPrefs.DeleteKey("AutoBuilder_Step");
             EditorPrefs.DeleteKey("AutoBuilder_Step_Retries");
             EditorPrefs.DeleteKey("AutoBuilder_Build_Platform");
+            Log("Cleared stored build status.");
         }
 
         private static async Task StartBuilder(int stepNumber = 0)
@@ -213,9 +214,16 @@ namespace AutoBuilder
         [AutoBuilderStep("Build", AutoBuilderStep.ORDER_BUILD, ReloadHandlingMode.Retry, 1)]
         private static async Task Build()
         {
-            if (BuildInfo.build_targets == null) return; // Not building anything
+            if (BuildInfo.build_targets == null)
+            {
+                Log("Skipping build: no build targets");
+                return;
+            }
             var platformIndex = EditorPrefs.GetInt("AutoBuilder_Build_Platform", 0);
-            if (platformIndex >= BuildInfo.build_targets.Length) return; // Built for all platforms!
+            if (platformIndex >= BuildInfo.build_targets.Length){
+                Log("Build complete for all build targets!");
+                return;
+            }
             for (int i = platformIndex; i < BuildInfo.build_targets.Length; i++)
             {
                 var target = BuildInfo.build_targets[i];
@@ -225,6 +233,14 @@ namespace AutoBuilder
                 BuildInfo.blueprint_id = world.blueprintId; // Just in case this is a new build and the id gets lost when changing platforms
 
                 Log($"World build complete: {world.path}");
+                if (!world.path.Contains(Enum.GetName(target)))
+                {
+                    throw new Exception($"Built world path does not match expected build target {Enum.GetName(target)}!");
+                }
+                for (int j = 0; j < i; j++)
+                {
+                    if (EditorPrefs.GetString($"AutoBuilder_Build_Path_{j}" == world.path)) throw new Exception("Built same world path twice! Either a build target was specified twice, or the platform change did not work correctly!");
+                }
                 EditorPrefs.SetString($"AutoBuilder_Build_Path_{i}", world.path);
 
                 EditorPrefs.SetInt("AutoBuilder_Build_Platform", i + 1);
@@ -392,7 +408,7 @@ namespace AutoBuilder
         {
             if (EditorUserBuildSettings.activeBuildTarget != target)
             {
-                Log($"Switching to build target: {target}");
+                Log($"Switching to build target: {target} (Currently {EditorUserBuildSettings.activeBuildTarget})");
                 BuildTargetGroup group = target switch
                 {
                     BuildTarget.StandaloneWindows64 => BuildTargetGroup.Standalone,
@@ -407,7 +423,7 @@ namespace AutoBuilder
                     throw new Exception($"Could not switch to build target: {target}");
                 }
 
-                Log($"Switched to build target: {target}");
+                Log($"Switched to build target: {target} ({EditorUserBuildSettings.activeBuildTarget})");
 
                 Log("Wait for C# Compile...");
                 while (EditorApplication.isCompiling) await Task.Delay(100);
