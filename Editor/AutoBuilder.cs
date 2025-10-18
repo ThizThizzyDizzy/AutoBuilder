@@ -233,13 +233,13 @@ namespace AutoBuilder
                 BuildInfo.blueprint_id = world.blueprintId; // Just in case this is a new build and the id gets lost when changing platforms
 
                 Log($"World build complete: {world.path}");
-                if (!world.path.Contains(Enum.GetName(target)))
+                if (!world.path.Contains(Enum.GetName(typeof(BuildTarget), target)))
                 {
-                    throw new Exception($"Built world path does not match expected build target {Enum.GetName(target)}!");
+                    throw new Exception($"Built world path does not match expected build target {Enum.GetName(typeof(BuildTarget), target)}!");
                 }
                 for (int j = 0; j < i; j++)
                 {
-                    if (EditorPrefs.GetString($"AutoBuilder_Build_Path_{j}" == world.path)) throw new Exception("Built same world path twice! Either a build target was specified twice, or the platform change did not work correctly!");
+                    if (EditorPrefs.GetString($"AutoBuilder_Build_Path_{j}") == world.path) throw new Exception("Built same world path twice! Either a build target was specified twice, or the platform change did not work correctly!");
                 }
                 EditorPrefs.SetString($"AutoBuilder_Build_Path_{i}", world.path);
 
