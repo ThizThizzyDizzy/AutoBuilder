@@ -29,7 +29,7 @@ namespace AutoBuilder
             if (!builder.IsValidBuilder(out var message)) throw new Exception("Builder is invalid: " + message); // This method will cause a scan for scene descriptors, removing one possible method of failure.
 
             Log("Building World...");
-            DateTime preBuildTime = DateTime.Now;
+            DateTime preBuildTime = DateTime.UtcNow;
             var path = await builder.Build();
             if (path == null) throw new Exception("Built path is null!");
 
