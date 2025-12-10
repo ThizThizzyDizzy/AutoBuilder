@@ -141,8 +141,7 @@ namespace AutoBuilder
         // This method is called by the Auto Builder Monitor.
         public static async void Start()
         {
-            // VRC.Core.Logger.EnableCategory("All"); // Turn on logging for VRC
-            VRC.Core.Logger.AddDebugLevel(9); // Turn on logging for VRC (for previous version of VRC SDK)
+            VRC.Core.Logger.EnableCategory("All"); // Turn on logging for VRC
             ClearEditorPrefs();
             if (BuildInfo == null) AbortBuild("Could not load build info!");
 
