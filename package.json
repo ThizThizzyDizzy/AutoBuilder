@@ -1,6 +1,6 @@
 {
     "name": "com.thizthizzydizzy.autobuilder",
-    "version": "1.0.5",
+    "version": "1.0.6",
     "displayName": "Auto Builder",
     "description": "Automatic build tool for VRChat",
     "unity": "2022.3",

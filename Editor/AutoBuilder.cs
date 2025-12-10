@@ -232,7 +232,7 @@ namespace AutoBuilder
                 BuildInfo.blueprint_id = world.blueprintId; // Just in case this is a new build and the id gets lost when changing platforms
 
                 Log($"World build complete: {world.path}");
-                if (!world.path.Contains(Enum.GetName(typeof(BuildTarget), target)))
+                if (!world.path.Contains(Enum.GetName(typeof(BuildTarget), target), StringComparison.OrdinalIgnoreCase))
                 {
                     throw new Exception($"Built world path does not match expected build target {Enum.GetName(typeof(BuildTarget), target)}!");
                 }
